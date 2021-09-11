@@ -22,9 +22,8 @@ for file in os.scandir(config_path):
         with open(student_file, 'r') as student_config_file:
             student_config = student_config_file.readlines()
 
-student_config = [line.strip() for line in student_config]
 lines_to_remove = ['!', '']
-student_config = [line for line in student_config if line not in lines_to_remove]
+student_config = [line.strip() for line in student_config if line not in lines_to_remove]
 student_config = set(student_config)
 
 with open(required_statements, 'r') as required_statements_file:
@@ -40,3 +39,4 @@ for statement_object in statement_objects:
 
 total_score = ceil(score)
 
+print(total_score)
