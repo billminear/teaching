@@ -5,15 +5,18 @@ author: bill minear
 '''
 import os
 import yaml
-from math import ceil
 from pathlib import Path
 
 lab_directory = 'acl'
 configuration_directory = 'configurations'
 config_path = os.path.join(Path.home(), 'Desktop', configuration_directory, lab_directory)
-required_statements = os.path.join(config_path, '_required_statements.yml')
+required_statements_yaml = os.path.join(config_path, '_required_statements.yml')
+grade_file_path = os.path.join(config_path, 'grades.txt')
 
-ignore_files = ['_required_statements.yml']
+ignore_files = ['_required_statements.yml', 'grades.txt']
+output_lines = '-'*14 + '\n'
+output_lines += f'{lab_directory} grades\n'
+output_lines += '-'*14
 for file in os.scandir(config_path):
     
     if file.name not in ignore_files:
@@ -22,21 +25,39 @@ for file in os.scandir(config_path):
         with open(student_file, 'r') as student_config_file:
             student_config = student_config_file.readlines()
 
-lines_to_remove = ['!', '']
-student_config = [line.strip() for line in student_config if line not in lines_to_remove]
-student_config = set(student_config)
+        lines_to_skip = ['!', '']
+        student_config = [line.strip() for line in student_config if line not in lines_to_skip]
+        student_config = set(student_config)
 
-with open(required_statements, 'r') as required_statements_file:
-    statement_objects = yaml.safe_load(required_statements_file)
+        with open(required_statements_yaml, 'r') as required_statements_file:
+            required_statements = yaml.safe_load(required_statements_file)
 
-statements = {statement_object['statement'] for statement_object in statement_objects}
-missing_statements = statements.difference(student_config)
+        statements = {required_statement['statement'] for required_statement in required_statements}
+        missing_statements = statements.difference(student_config)
 
-score = 0
-for statement_object in statement_objects:
-    if statement_object['statement'] not in missing_statements:
-        score += statement_object['value']
+        score = 0
+        for required_statement in required_statements:
 
-total_score = ceil(score)
+            if required_statement['statement'] not in missing_statements:
+                score += required_statement['score']
 
-print(total_score)
+        output_lines += '\n\n\n'
+        output_lines += f'{file.name}\n'
+        output_lines += '-'*14 + '\n'
+        for required_statement in required_statements:
+            statement = required_statement['statement']
+
+            if statement in missing_statements:
+                value = '-----'
+
+            else:
+                value = required_statement['score']
+                value = f'{value:.2f}'
+
+            output_lines += f' {value.zfill(5):^} | {statement}\n'
+
+        output_lines += '-'*14 + '\n'
+        output_lines += f' {score:^.2f} | Total\n'
+
+with open(grade_file_path, 'w+') as grade_file:
+    grade_file.write(output_lines)
