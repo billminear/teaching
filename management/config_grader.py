@@ -4,10 +4,16 @@ author: bill minear
 
 '''
 import os
+import sys
 import yaml
 from pathlib import Path
 
-lab_directory = 'acl'
+try:
+    lab_directory = sys.argv[1]
+
+except:
+    print('Provide an argument at the command line.')
+
 configuration_directory = 'configurations'
 config_path = os.path.join(Path.home(), 'Desktop', configuration_directory, lab_directory)
 required_statements_yaml = os.path.join(config_path, '_required_statements.yml')
@@ -34,6 +40,10 @@ for file in os.scandir(config_path):
 
         statements = {required_statement['statement'] for required_statement in required_statements}
         missing_statements = statements.difference(student_config)
+
+        for line in student_config:
+            if 'banner' in line:
+                missing_statements = [missing_statement for missing_statement in missing_statements if 'banner' not in missing_statement]
 
         score = 0
         for required_statement in required_statements:
