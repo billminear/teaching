@@ -2,11 +2,18 @@
 # grade_configs.py
 
 ## Usage
+1. Create new lab directory: python grade_configs.py 
+2. Add student configs to "./lab_directory"
+   a. filename should follow "studentFirstInitial_studentCompleteLastName.txt" scheme.
+2. 
+
+Execute the script followed by the "./lab_directory". 
+
 ```python
-config_grader.py nat
+config_grader.py lab_directory
 ```
 
-### folder structure:
+### Required Folder Structure:
 ```bash
 .
 ├── README.md
