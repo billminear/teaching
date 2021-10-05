@@ -1,33 +1,8 @@
 #!/usr/bin/env
-"""
-grade_configs.py
-author: bill minear
-purpose: iterates a directory of .txt files and lazily parses them for the cisco
-         configuration statements found in _required_statements.yaml. for each file,
-         an itemized score is generated. when all files are parsed, each generated
-         scoring is written to ./_grades.txt.
-         - .txt files are exported configurations from devices in assigned
-           packet tracer labs.
-usage:
-- create _required_statements.yaml
-- set CONFIGURATION_PATH to the location of the .txt files.
-  - python grade_configs.py
-- if CONFIGURATION_PATH not set, the directory can be passed in at the command line.
-  - python grade_configs.py "directory_of_.txt_files"
-"""
 import os
 import sys
 import yaml
 from pathlib import Path
-
-### My Custom Configuration Path Variables
-# LAB = "nat"
-# STUDENT_CONFIG_ROOT = os.environ.get("STUDENT_CONFIG_PATH")
-# COMPLETE_STUDENT_CONFIG_PATH = os.path.join(STUDENT_CONFIG_ROOT, LAB)
-###
-
-# ignore this until you have a suggested remedy.
-NESTED_CONFIGURATION_DIRECTORY = "configurations"
 
 try:
     lab_directory = sys.argv[1]
@@ -43,7 +18,6 @@ except IndexError:
     lab_directory = input("\nLab directory name: ")
     lab_directory_path = os.path.join(
         ".",
-        NESTED_CONFIGURATION_DIRECTORY,
         lab_directory,
     )
 
@@ -61,15 +35,6 @@ except IndexError:
         print("Example: python grade_configs.py lab_directory\n")
         exit()
 
-lab_directory_path = os.path.join(
-    ".",
-    NESTED_CONFIGURATION_DIRECTORY,
-    lab_directory,
-)
-
-if not os.path.isdir(lab_directory_path):
-    print(f"\n{lab_directory_path} not a directory.\n")
-    exit()
 
 output_lines = "-" * 14 + "\n"
 output_lines += f"{lab_directory} grades\n"
