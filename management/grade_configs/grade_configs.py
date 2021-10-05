@@ -7,7 +7,12 @@ from shutil import copytree
 from pathlib import Path
 
 try:
-    lab_directory = sys.argv[1]
+    lab_directory_name = sys.argv[1]
+
+    if not os.path.isdir(lab_directory_name):
+        print(f"\n{lab_directory_name} does not exist.")
+        print("Rerun the script without an argument to create a new directory.\n")
+        exit()
 
 except IndexError:
     print("\nCreate new lab directory?")
@@ -18,30 +23,41 @@ except IndexError:
         exit()
 
     lab_directory_name = input("\nLab directory name: ")
-    lab_directory_path = os.path.join(
-        ".",
-        lab_directory_name,
-    )
+    lab_directory_path = os.path.join(".", lab_directory_name)
+
     if not os.path.isdir(lab_directory_path):
-        new_path = copytree(
-            "example_lab_directory",
-            lab_directory_path,
-        )
+        new_path = copytree("example_lab_directory", lab_directory_path)
         configuration_file_path = os.path.join(new_path, "configuration_files")
+
         for file in os.scandir(configuration_file_path):
             os.remove(file.path)
 
-#         print(f"{lab_directory_path} created.")
-#         print("Modify files to your need.")
-#         print("Run script again with lab directory as the first argument.")
-#         print("Example: python grade_configs.py lab_directory\n")
-#         exit()
+        output_statement = "\n"
+        output_statement += "---" * 8 + "\n"
+        output_statement += f"{lab_directory_path} created.\n"
+        output_statement += "---" * 8 + "\n"
+        output_statement += f"Modify {lab_directory_path}\\_required_statements.yml to meet your needs\n"
+        output_statement += (
+            "and add configuration files to the configuration_files directory.\n"
+        )
+        output_statement += "\n"
+        output_statement += "Once you've completed the above, rerun the script with your lab directory\n"
+        output_statement += "name as an argument to create the _grades.txt file containing grade output.\n"
+        output_statement += "(example: py grade_configs.py ospf)\n"
+        print(output_statement)
+        exit()
 
-#     else:
-#         print(f"\n{lab_directory_path} already exists.")
-#         print("Rerun the script with the directory as a the first argument.")
-#         print("Example: python grade_configs.py lab_directory\n")
-#         exit()
+        # # print(f"{lab_directory_path} created.")
+        # print("Modify _required_statements to your need and add configurations to the configuration_files.")
+        # print("Run script again with lab directory as the first argument.")
+        # print("Example: python grade_configs.py lab_directory\n")
+        # exit()
+
+    else:
+        print(f"\n{lab_directory_path} already exists.")
+        print("Rerun the script with the directory as the first argument.")
+        print("Example: python grade_configs.py lab_directory\n")
+        exit()
 
 # output_lines = "-" * 14 + "\n"
 # output_lines += f"{lab_directory} grades\n"
@@ -52,8 +68,11 @@ except IndexError:
 #     file.name for file in os.scandir(lab_directory_path) if file not in files_to_skip
 # ]
 
-# for filename in files_to_read:
-#     student_file = os.path.join(lab_directory_path, filename)
+configuration_file_path = os.path.join(lab_directory_name, "configuration_files")
+
+for file in os.scandir(configuration_file_path):
+    student_file = os.path.join(lab_directory_path, file.name)
+    print(student_file)
 
 #     with open(student_file, "r") as student_config_file:
 #         student_config = student_config_file.readlines()
