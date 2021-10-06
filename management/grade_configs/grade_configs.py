@@ -13,16 +13,17 @@ try:
     lab_directory_path = os.path.join(".", lab_directory_name)
 
     if not os.path.isdir(lab_directory_name):
-        output_statement = f"\n{lab_directory_name} does not exist."
+        output_statement = f"\n{lab_directory_name} does not exist.\n"
         output_statement += (
-            "Rerun the script without an argument to create a new directory.\n"
+            "Rerun the script without an argument to create it as a new directory.\n"
         )
         print(output_statement)
         exit()
 
 except IndexError:
-    print("(example: py grade_config.py ospf")
-    new_directory_response = input("\nCreate new lab directory? (y/n) ")
+    new_directory_question = "\n"
+    new_directory_question += "Create new lab directory? (y/n) "
+    new_directory_response = input(new_directory_question)
 
     if new_directory_response.lower() != "y":
         print("\nExiting.\n")
@@ -47,7 +48,7 @@ except IndexError:
 
         # important:
         # include link to documentation on usage located on the project's github.
-        # - create documentation on usage on the project's github.
+        # - *create* documentation on usage on the project's github.
         output_statement = "\n"
         output_statement += "---" * 8 + "\n"
         output_statement += f"{lab_directory_path} created.\n"
@@ -58,7 +59,10 @@ except IndexError:
         )
         output_statement += "\n"
         output_statement += "Once you've completed the above, rerun the script with your lab directory\n"
-        output_statement += "name as an argument to create the _grades.txt file containing grade output.\n"
+        output_statement += (
+            "as the argument to create the _grades.txt file containing grade output.\n"
+        )
+        output_statement += "\n"
         output_statement += "(example: py grade_configs.py ospf)\n"
         print(output_statement)
         exit()
