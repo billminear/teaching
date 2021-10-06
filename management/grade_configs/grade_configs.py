@@ -1,4 +1,3 @@
-#!/usr/bin/env
 import os
 import sys
 import yaml
@@ -6,19 +5,26 @@ import yaml
 from shutil import copytree
 from pathlib import Path
 
+EXAMPLE_LAB_DIRECTORY_NAME = "example_lab"
+CONFIGURATION_DIRECTORY_NAME = "configuration_files"
+
 try:
     lab_directory_name = sys.argv[1]
+    lab_directory_path = os.path.join(".", lab_directory_name)
 
     if not os.path.isdir(lab_directory_name):
-        print(f"\n{lab_directory_name} does not exist.")
-        print("Rerun the script without an argument to create a new directory.\n")
+        output_statement = f"\n{lab_directory_name} does not exist."
+        output_statement += (
+            "Rerun the script without an argument to create a new directory.\n"
+        )
+        print(output_statement)
         exit()
 
 except IndexError:
-    print("\nCreate new lab directory?")
-    create_new_directory = input("(y/n) ")
+    print("(example: py grade_config.py ospf")
+    new_directory_response = input("\nCreate new lab directory? (y/n) ")
 
-    if create_new_directory.lower() != "y":
+    if new_directory_response.lower() != "y":
         print("\nExiting.\n")
         exit()
 
@@ -26,12 +32,22 @@ except IndexError:
     lab_directory_path = os.path.join(".", lab_directory_name)
 
     if not os.path.isdir(lab_directory_path):
-        new_path = copytree("example_lab_directory", lab_directory_path)
-        configuration_file_path = os.path.join(new_path, "configuration_files")
+        # remember for later:
+        # may be best to replace copying the entire directory, then deleting the
+        # files within the configuration_files directory by filtering them out here
+        # using the copytree "ignore" parameter.
+        # - ignore requires a function and I don't have time for that right now.
+        # - this works.
+        new_path = copytree(EXAMPLE_LAB_DIRECTORY_NAME, lab_directory_path)
 
-        for file in os.scandir(configuration_file_path):
+        configuration_directory = os.path.join(new_path, CONFIGURATION_DIRECTORY_NAME)
+
+        for file in os.scandir(configuration_directory):
             os.remove(file.path)
 
+        # important:
+        # include link to documentation on usage located on the project's github.
+        # - create documentation on usage on the project's github.
         output_statement = "\n"
         output_statement += "---" * 8 + "\n"
         output_statement += f"{lab_directory_path} created.\n"
@@ -47,30 +63,20 @@ except IndexError:
         print(output_statement)
         exit()
 
-        # # print(f"{lab_directory_path} created.")
-        # print("Modify _required_statements to your need and add configurations to the configuration_files.")
-        # print("Run script again with lab directory as the first argument.")
-        # print("Example: python grade_configs.py lab_directory\n")
-        # exit()
-
     else:
-        print(f"\n{lab_directory_path} already exists.")
-        print("Rerun the script with the directory as the first argument.")
-        print("Example: python grade_configs.py lab_directory\n")
+        output_statement = f"\n{lab_directory_path} already exists."
+        output_statement += "Rerun the script with the directory as the first argument."
+        output_statement += "Example: python grade_configs.py lab_directory\n"
+        print(output_statement)
         exit()
 
 # output_lines = "-" * 14 + "\n"
 # output_lines += f"{lab_directory} grades\n"
 # output_lines += "-" * 14
 
-# files_to_skip = ["_required_statements.yml", "_grades.txt"]
-# files_to_read = [
-#     file.name for file in os.scandir(lab_directory_path) if file not in files_to_skip
-# ]
+configuration_directory = os.path.join(lab_directory_name, CONFIGURATION_DIRECTORY_NAME)
 
-configuration_file_path = os.path.join(lab_directory_name, "configuration_files")
-
-for file in os.scandir(configuration_file_path):
+for file in os.scandir(configuration_directory):
     student_file = os.path.join(lab_directory_path, file.name)
     print(student_file)
 
