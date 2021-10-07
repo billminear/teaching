@@ -1,0 +1,18 @@
+# _required_statements.yml
+#
+# example grader values.
+# scores are out of 100.
+#
+# todo:
+# - currently inflexible. need to handle variables in strings
+#   somewhere. likely in the code, not here.
+---
+router01:
+  hostname router01: 16.67
+  service password-encryption: 16.67
+  banner motd: 16.67
+
+router02:
+  hostname router02: 16.67
+  service password-encryption: 16.67
+  banner motd: 16.67
