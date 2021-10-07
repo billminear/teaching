@@ -1,7 +1,7 @@
 import os
 import sys
 import yaml
-
+from math import ceil
 from shutil import copytree
 from pathlib import Path
 
@@ -85,6 +85,7 @@ student_dict = {}
 for file in os.scandir(configuration_directory):
 
     student_name, device_name = file.name.split("_")
+    device_name = device_name.strip(".txt")
 
     if student_name not in student_dict:
         student_dict[student_name] = {"total": 0}
@@ -130,7 +131,7 @@ for file in os.scandir(configuration_directory):
         student_dict[student_name]["total"] = max(
             0, student_dict[student_name]["total"]
         )
-    student_dict[student_name]["total"] = round(student_dict[student_name]["total"])
+    student_dict[student_name]["total"] = ceil(student_dict[student_name]["total"])
 
     student_dict[student_name].update({device_name: graded_statements})
 
