@@ -7,6 +7,8 @@ from pathlib import Path
 
 EXAMPLE_LAB_DIRECTORY_NAME = "example_lab"
 CONFIGURATION_DIRECTORY_NAME = "configuration_files"
+REQUIRED_STATEMENTS_FILE_NAME = "_required_statements.yml"
+GRADE_FILE_NAME = "_grades.yml"
 
 try:
     lab_directory_name = sys.argv[1]
@@ -74,68 +76,65 @@ except IndexError:
         print(output_statement)
         exit()
 
-# output_lines = "-" * 14 + "\n"
-# output_lines += f"{lab_directory} grades\n"
-# output_lines += "-" * 14
+configuration_directory = os.path.join(lab_directory_path, CONFIGURATION_DIRECTORY_NAME)
+required_statements_path = os.path.join(
+    lab_directory_path, REQUIRED_STATEMENTS_FILE_NAME
+)
 
-configuration_directory = os.path.join(lab_directory_name, CONFIGURATION_DIRECTORY_NAME)
-
+student_dict = {}
 for file in os.scandir(configuration_directory):
-    student_file = os.path.join(lab_directory_path, file.name)
-    print(student_file)
 
-#     with open(student_file, "r") as student_config_file:
-#         student_config = student_config_file.readlines()
+    student_name, device_name = file.name.split("_")
 
-#     lines_to_skip = ["!", ""]
-#     student_config = [
-#         line.strip() for line in student_config if line not in lines_to_skip
-#     ]
-#     student_config = set(student_config)
+    if student_name not in student_dict:
+        student_dict[student_name] = {"total": 0}
 
-#     required_statements_yaml = os.path.join(
-#         lab_directory_path, "_required_statements.yml"
-#     )
-#     with open(required_statements_yaml, "r") as required_statements_file:
-#         required_statements = yaml.safe_load(required_statements_file)
+    with open(file.path, "r") as student_file:
+        student_configuration = student_file.readlines()
 
-#     statements = {
-#         required_statement["statement"] for required_statement in required_statements
-#     }
-#     missing_statements = statements.difference(student_config)
+    lines_to_skip = ["!", ""]
+    student_configuration_statements = [
+        line.strip()
+        for line in student_configuration
+        if line.strip() not in lines_to_skip
+    ]
 
-#     # edge case for working around various delimeters in banner motds.
-#     # may be a more appropriate way to handle this. works for now.
-#     for line in student_config:
-#         if "banner" in line:
-#             missing_statements = [
-#                 if "banner" not in missing_statement
-#             ]
+    with open(required_statements_path, "r") as required_statements_file:
+        required_statements = yaml.safe_load(required_statements_file)
 
-#     score = 0
-#     for required_statement in required_statements:
+    graded_statements = {}
+    for statement in student_configuration_statements:
 
-#         if required_statement["statement"] not in missing_statements:
-#             score += required_statement["score"]
+        # accepts *any* motd. lazy way of handling variance in delimiter selection.
+        if statement.startswith("banner motd"):
 
-#     output_lines += "\n\n\n"
-#     output_lines += f"{filename}\n"
-#     output_lines += "-" * 14 + "\n"
+            try:
+                graded_statements.update(
+                    {statement: required_statements[device_name].pop("banner motd")}
+                )
 
-#     for required_statement in required_statements:
-#         statement = required_statement["statement"]
+            except KeyError:  # works. dunno if it's a great way to handle this though.
+                pass
 
-#         if statement in missing_statements:
-#             value = "-----"
-#         else:
-#             value = required_statement["score"]
-#             value = f"{value:.2f}"
+        elif statement in required_statements[device_name]:
+            graded_statements.update(
+                {statement: required_statements[device_name].pop(statement)}
+            )
 
-#         output_lines += f" {value.zfill(5):^} | {statement}\n"
+    graded_statements.update(
+        {statement: 0 for statement in required_statements[device_name]}
+    )
 
-#     output_lines += "-" * 14 + "\n"
-#     output_lines += f" {score:^.2f} | Total\n"
+    for key, value in graded_statements.items():
+        student_dict[student_name]["total"] += value
+        student_dict[student_name]["total"] = max(
+            0, student_dict[student_name]["total"]
+        )
+    student_dict[student_name]["total"] = round(student_dict[student_name]["total"])
 
-# grade_file_path = os.path.join(lab_directory_path, "_grades.txt")
-# with open(grade_file_path, "w+") as grade_file:
-#     grade_file.write(output_lines)
+    student_dict[student_name].update({device_name: graded_statements})
+
+grade_file_path = os.path.join(lab_directory_path, GRADE_FILE_NAME)
+
+with open(grade_file_path, "w") as grade_file:
+    yaml.dump(student_dict, grade_file, sort_keys=False)
