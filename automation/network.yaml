@@ -1,0 +1,15 @@
+
+devices:
+  - device: router-01
+    type: router
+    hostname: router-01
+    interfaces:
+      - interface: "GigabitEthernet 0/0"
+        address: 192.168.1.1
+        mask: 255.255.255.0
+        shutdown: no shut
+      - interface: "GigabitEthernet 0/1"
+        address: 192.168.1.1
+        mask: 255.255.255.0
+        shutdown: no shut
+
