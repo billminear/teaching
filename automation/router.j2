@@ -24,6 +24,8 @@ interface {{ interface.interface }}
  no shut
 {% endfor %}
 
+exit
+
 {% for process in device.ospf %}
 router ospf {{ process.id }}
  router-id {{ process.router_id }}
@@ -33,6 +35,8 @@ router ospf {{ process.id }}
  network {{ network.prefix }} {{ network.wildcard }} area {{ network.area }}
  {% endfor %}
 {% endfor %}
+
+exit
 
 line con 0
  password 7 0822455D0A16
@@ -48,4 +52,6 @@ line vty 5 15
  transport input ssh
 
 end
+
+write memory
 

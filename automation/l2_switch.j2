@@ -18,6 +18,11 @@ ip domain-name {{ device.domain_name }}
 crypto key generate rsa general-keys modulus 2048
 ip ssh version 2
 
+{% for vlan in device.vlans %}
+vlan {{ vlan.id }}
+ name {{ vlan.name }}
+{% endfor %}
+
 {% for interface in device.interfaces %}
 interface {{ interface.interface }}
  {% if interface.mode == "access" %}
@@ -30,11 +35,11 @@ interface {{ interface.interface }}
  {% endif %}
 {% endfor %}
 
+exit
+
 line con 0
  password 7 0822455D0A16
  login
-
-line aux 0
 
 line vty 0 4
  login local
@@ -44,4 +49,6 @@ line vty 5 15
  transport input ssh
 
 end
+
+write memory
 
