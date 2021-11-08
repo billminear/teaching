@@ -1,0 +1,47 @@
+enable
+
+conf t
+
+service password-encryption
+
+hostname {{ device.hostname }}
+
+banner motd &{{ device.motd }}&
+
+ip default-gateway {{ device.default_gateway }}
+
+enable secret 5 $1$mERr$hx5rVt7rPNoS4wqbXKX7m0
+
+username admin secret 5 $1$mERr$hx5rVt7rPNoS4wqbXKX7m0
+
+ip domain-name {{ device.domain_name }}
+crypto key generate rsa general-keys modulus 2048
+ip ssh version 2
+
+{% for interface in device.interfaces %}
+interface {{ interface.interface }}
+ {% if interface.mode == "access" %}
+ switchport mode access
+ switchport access vlan {{ interface.vlan }}
+ no shut
+ {% else %}
+ ip address {{ interface.address }} {{ interface.mask }}
+ no shut
+ {% endif %}
+{% endfor %}
+
+line con 0
+ password 7 0822455D0A16
+ login
+
+line aux 0
+
+line vty 0 4
+ login local
+ transport input ssh
+line vty 5 15
+ login local
+ transport input ssh
+
+end
+
