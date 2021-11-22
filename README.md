@@ -1,7 +1,6 @@
 # Educational Resources
 
-Here you'll find an ever-growing collection of resources  
-that I utilize when teaching.
+Here you'll find an ever-growing collection of resources that I utilize when teaching.
 
 # management
 
